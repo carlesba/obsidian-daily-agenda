@@ -18,11 +18,13 @@ export type CalendarErrorReason = "missingCredentials" | "authenticationFailed" 
 export class CalendarError extends Error {
 	readonly reason: CalendarErrorReason;
 	readonly status?: number;
+	readonly url?: string;
 
-	constructor(reason: CalendarErrorReason, status?: number) {
-		super(status === undefined ? reason : `${reason} (${status})`);
+	constructor(reason: CalendarErrorReason, status?: number, url?: string) {
+		super([reason, status, url].filter((part) => part !== undefined).join(" "));
 		this.reason = reason;
 		this.status = status;
+		this.url = url;
 	}
 }
 
@@ -37,8 +39,8 @@ export async function send(http: Http, request: HttpRequest): Promise<HttpRespon
 			current = { ...current, url: new URL(location, current.url).toString() };
 			continue;
 		}
-		if (response.status === 401 || response.status === 403) throw new CalendarError("authenticationFailed", response.status);
-		if (response.status < 200 || response.status >= 300) throw new CalendarError("requestFailed", response.status);
+		if (response.status === 401 || response.status === 403) throw new CalendarError("authenticationFailed", response.status, current.url);
+		if (response.status < 200 || response.status >= 300) throw new CalendarError("requestFailed", response.status, current.url);
 		return { ...response, url: current.url };
 	}
 }

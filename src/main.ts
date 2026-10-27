@@ -67,7 +67,10 @@ export default class DailyAgendaPlugin extends Plugin {
 			(id) => this.app.secretStorage.getSecret(id),
 			periodRange(note),
 		);
-		for (const failure of failures) new Notice(failureMessage(failure));
+		for (const failure of failures) {
+			console.error(`Daily Agenda: could not read "${accountName(failure.account)}"`, failure.error);
+			new Notice(failureMessage(failure));
+		}
 		if (events.length === 0) {
 			if (failures.length === 0) new Notice(t("noEvents"));
 			return;
@@ -97,9 +100,9 @@ function failureReason(error: unknown): string {
 			case "missingCredentials":
 				return t("reasonMissingCredentials");
 			case "authenticationFailed":
-				return t("reasonAuthenticationFailed");
+				return t("reasonAuthenticationFailed", { status: error.status ?? "", host: hostOf(error.url) });
 			case "requestFailed":
-				return t("reasonRequestFailed", { status: error.status ?? "" });
+				return t("reasonRequestFailed", { status: error.status ?? "", host: hostOf(error.url) });
 			case "noPrincipal":
 				return t("reasonNoPrincipal");
 			case "noCalendarHome":
@@ -107,4 +110,13 @@ function failureReason(error: unknown): string {
 		}
 	}
 	return t("reasonUnknown", { message: error instanceof Error ? error.message : String(error) });
+}
+
+function hostOf(url: string | undefined): string {
+	if (url === undefined) return "";
+	try {
+		return new URL(url).host;
+	} catch {
+		return url;
+	}
 }
