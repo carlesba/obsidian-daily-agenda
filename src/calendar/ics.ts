@@ -7,8 +7,12 @@ import type { TimeRange } from "../periodic/periodicNote.ts";
 export async function fetchIcsEvents(http: Http, url: string, range: TimeRange, origin: CalendarOrigin): Promise<AgendaEvent[]> {
 	const feedUrl = httpUrl(url);
 	if (isGoogleShareLink(feedUrl)) throw new CalendarError("notICalFeed", undefined, feedUrl);
-	if (isGooglePublicAddress(feedUrl)) throw new CalendarError("googlePublicAddress", undefined, feedUrl);
-	const response = await send(http, { url: feedUrl, method: "GET", headers: { Accept: "text/calendar" } });
+	const response = await send(http, { url: feedUrl, method: "GET", headers: { Accept: "text/calendar" } }).catch((error: unknown) => {
+		if (error instanceof CalendarError && error.status === 404 && isGooglePublicAddress(feedUrl)) {
+			throw new CalendarError("googlePublicAddress", 404, feedUrl);
+		}
+		throw error;
+	});
 	if (!/^\s*BEGIN:VCALENDAR/i.test(response.text)) throw new CalendarError("notICalFeed", response.status, feedUrl);
 	return parseICalendar(response.text, range, origin);
 }

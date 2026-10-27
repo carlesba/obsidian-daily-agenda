@@ -109,3 +109,12 @@ test("a Google public iCal address is rejected with a hint to use the secret one
 		(error: { reason?: string }) => error.reason === "googlePublicAddress",
 	);
 });
+
+test("a public Google calendar is read from its public address", async () => {
+	const { fetchIcsEvents } = await import("../src/calendar/ics.ts");
+	const feed = "BEGIN:VCALENDAR\r\nVERSION:2.0\r\nBEGIN:VEVENT\r\nUID:h1\r\nDTSTART;VALUE=DATE:20260101\r\nDTEND;VALUE=DATE:20260102\r\nSUMMARY:New Year\r\nEND:VEVENT\r\nEND:VCALENDAR\r\n";
+	const http = async () => ({ status: 200, headers: {}, text: feed });
+	const range = { start: new Date(2026, 0, 1), end: new Date(2026, 0, 2) };
+	const events = await fetchIcsEvents(http, "https://calendar.google.com/calendar/ical/en.usa%23holiday%40group.v.calendar.google.com/public/basic.ics", range, { accountId: "a", accountName: "A" });
+	assert.deepEqual(events.map((event) => event.title), ["New Year"]);
+});
