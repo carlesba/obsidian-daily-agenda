@@ -40,6 +40,7 @@ export class DailyAgendaSettingTab extends PluginSettingTab {
 			settings,
 			write: (key, value) => void this.setControlValue(key, value),
 			openPage: (pageId) => this.openPage(pageId),
+			google: this.plugin.google,
 		};
 		return [
 			this.dateNotesSection(vault, context),
@@ -96,7 +97,7 @@ export class DailyAgendaSettingTab extends PluginSettingTab {
 	async setControlValue(key: string, value: unknown): Promise<void> {
 		if (!writeControl(this.plugin.settings, key, value)) return;
 		await this.plugin.saveSettings();
-		const field = key.split("/").pop() ?? "";
+		const field = key.split("/")[2] ?? "";
 		if (TYPED_FIELDS.includes(field)) {
 			this.refreshAfterTyping();
 			return;

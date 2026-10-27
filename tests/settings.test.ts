@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
 import { ANY, defaultSettings, mergeSettings, newAccount, newTemplate } from "../src/settings.ts";
-import { templateKey, writeControl } from "../src/settings/controlKeys.ts";
+import { calendarKey, readControl, templateKey, writeControl } from "../src/settings/controlKeys.ts";
 import { templateSummary } from "../src/settings/labels.ts";
 
 test("a template row summarises its period, events and account", () => {
@@ -59,4 +59,15 @@ test("a Google account keeps its client, token ID, email and calendars", () => {
 		{ id: "someone@example.com", name: "Personal", enabled: true },
 		{ id: "team", name: "Team", enabled: false },
 	]);
+});
+
+test("a calendar toggle is written by its calendar ID", () => {
+	const settings = defaultSettings();
+	const account = { ...newAccount(settings.accounts, "google"), calendars: [{ id: "team/a@group.calendar.google.com", name: "Team", enabled: true }] };
+	settings.accounts.push(account);
+	const key = calendarKey(account.id, "team/a@group.calendar.google.com");
+	assert.equal(readControl(settings, key), true);
+	assert.ok(writeControl(settings, key, false));
+	assert.equal(account.calendars[0].enabled, false);
+	assert.equal(writeControl(settings, calendarKey(account.id, "missing"), true), false);
 });

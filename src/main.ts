@@ -3,7 +3,9 @@ import type { TFile } from "obsidian";
 import { agendaLines, appendLines, linesMissingFrom } from "./agenda/agenda";
 import { accountName, fetchAgenda } from "./calendar/accounts";
 import type { AccessTokens } from "./calendar/google";
+import { PROTOCOL_ACTION } from "./calendar/googleAuth";
 import { failureMessage } from "./failureMessages";
+import { GoogleSignIn } from "./googleSignIn";
 import { DEFAULT_LANGUAGE, setLanguage, t, tCount } from "./i18n";
 import { obsidianHttp } from "./obsidianHttp";
 import { resolveDateNotes } from "./periodic/dateNotes";
@@ -20,6 +22,14 @@ const momentFactory = moment as unknown as MomentFactory;
 export default class DailyAgendaPlugin extends Plugin {
 	settings: AgendaSettings = defaultSettings();
 	private readonly accessTokens: AccessTokens = new Map();
+	private settingTab: DailyAgendaSettingTab | undefined;
+	readonly google = new GoogleSignIn({
+		app: this.app,
+		settings: () => this.settings,
+		save: () => this.saveSettings(),
+		refreshSettings: () => this.settingTab?.update(),
+		tokens: this.accessTokens,
+	});
 
 	async onload(): Promise<void> {
 		try {
@@ -28,7 +38,9 @@ export default class DailyAgendaPlugin extends Plugin {
 			setLanguage(DEFAULT_LANGUAGE);
 		}
 		this.settings = mergeSettings(await this.loadData());
-		this.addSettingTab(new DailyAgendaSettingTab(this.app, this));
+		this.settingTab = new DailyAgendaSettingTab(this.app, this);
+		this.addSettingTab(this.settingTab);
+		this.registerObsidianProtocolHandler(PROTOCOL_ACTION, (params) => void this.google.handleRedirect(params));
 
 		this.addCommand({
 			id: "sync-agenda",

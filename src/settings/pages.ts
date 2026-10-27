@@ -2,7 +2,8 @@ import { SecretComponent } from "obsidian";
 import type { App, Setting, SettingDefinitionItem, SettingDefinitionPage, SettingDefinitionRender } from "obsidian";
 import { t } from "../i18n";
 import type { Account, AgendaSettings, AgendaTemplate } from "../settings";
-import { accountKey, templateKey } from "./controlKeys";
+import { GOOGLE_REDIRECT_URI } from "../calendar/googleAuth";
+import { accountKey, calendarKey, templateKey } from "./controlKeys";
 import type { AccountField } from "./controlKeys";
 import {
 	accountKindOptions,
@@ -11,6 +12,7 @@ import {
 	accountSummary,
 	eventKindOptions,
 	hasSignInDetails,
+	isSignedIn,
 	periodOptions,
 	templateSummary,
 	templateUsesRemovedAccount,
@@ -21,6 +23,13 @@ export interface PageContext {
 	settings: AgendaSettings;
 	write: (key: string, value: unknown) => void;
 	openPage: (pageId: string) => void;
+	google: GoogleActions;
+}
+
+export interface GoogleActions {
+	signIn: (account: Account) => void;
+	signOut: (account: Account) => void;
+	refreshCalendars: (account: Account) => void;
 }
 
 type IdentifiedPage = SettingDefinitionPage & { id: string };
@@ -114,9 +123,76 @@ export function accountPage(account: Account, context: PageContext): SettingDefi
 				visible: () => account.kind === "ics",
 				render: secretInput(context, key("urlSecret"), () => account.urlSecret),
 			},
+			...googleItems(account, context),
 		],
 	};
 	return page;
+}
+
+function googleItems(account: Account, context: PageContext): SettingDefinitionItem[] {
+	const key = (field: AccountField) => accountKey(account.id, field);
+	const isGoogle = () => account.kind === "google";
+	const signedIn = () => isGoogle() && isSignedIn(account);
+	const canSignIn = () => account.clientId.trim() !== "" && hasSecret(context, account.clientSecret);
+	return [
+		{ name: t("googleSetup"), desc: googleSetupHelp(), visible: isGoogle },
+		{
+			name: t("clientId"),
+			desc: t("clientIdDesc"),
+			visible: isGoogle,
+			control: { type: "text", key: key("clientId"), placeholder: "1234567890-example.apps.googleusercontent.com" },
+		},
+		{
+			name: t("clientSecret"),
+			desc: withKeychainExplanation(t("clientSecretDesc"), "google-client-secret"),
+			visible: isGoogle,
+			render: secretInput(context, key("clientSecret"), () => account.clientSecret),
+		},
+		{
+			name: t("signInWithGoogle"),
+			desc: canSignIn() ? t("signInDesc") : t("signInNeedsClient"),
+			visible: () => isGoogle() && !isSignedIn(account),
+			render: (setting) => {
+				setting.addButton((button) =>
+					button
+						.setButtonText(t("signInWithGoogle"))
+						.setCta()
+						.setDisabled(!canSignIn())
+						.onClick(() => context.google.signIn(account)),
+				);
+			},
+		},
+		{
+			name: account.email ? t("signedInAs", { email: account.email }) : t("signedIn"),
+			desc: t("signedInDesc"),
+			visible: signedIn,
+			render: (setting) => {
+				setting.addButton((button) => button.setButtonText(t("signOut")).onClick(() => context.google.signOut(account)));
+			},
+		},
+		{
+			name: t("refreshCalendars"),
+			desc: t("refreshCalendarsDesc"),
+			visible: signedIn,
+			render: (setting) => {
+				setting.addButton((button) =>
+					button.setButtonText(t("refreshCalendars")).onClick(() => context.google.refreshCalendars(account)),
+				);
+			},
+		},
+		...(account.calendars.length === 0
+			? [{ name: t("calendars"), desc: t("noCalendars"), visible: signedIn }]
+			: account.calendars.map((calendar) => ({
+					name: calendar.name,
+					desc: calendar.id === calendar.name ? "" : calendar.id,
+					visible: signedIn,
+					control: { type: "toggle" as const, key: calendarKey(account.id, calendar.id) },
+				}))),
+	];
+}
+
+function hasSecret(context: PageContext, id: string): boolean {
+	return id.trim() !== "" && (context.app.secretStorage.getSecret(id.trim())?.trim() ?? "") !== "";
 }
 
 export function templatePage(template: AgendaTemplate, context: PageContext): SettingDefinitionPage {
@@ -208,6 +284,20 @@ function appSpecificPasswordHelp(): DocumentFragment {
 		fragment.appendText(`${t("appSpecificPasswordNotes")} `);
 		fragment.createEl("a", { text: t("appSpecificPasswordHelp"), href: APP_SPECIFIC_PASSWORD_HELP_URL });
 		appendKeychainExplanation(fragment, "icloud-password");
+	});
+}
+
+const GOOGLE_CREDENTIALS_URL = "https://console.cloud.google.com/apis/credentials";
+
+function googleSetupHelp(): DocumentFragment {
+	return createFragment((fragment) => {
+		fragment.appendText(t("googleSetupDesc"));
+		const steps = fragment.createEl("ol");
+		steps.createEl("li", { text: t("googleSetupStepProject") });
+		steps.createEl("li", { text: t("googleSetupStepConsent") });
+		steps.createEl("li", { text: t("googleSetupStepClient", { redirect: GOOGLE_REDIRECT_URI }) });
+		steps.createEl("li", { text: t("googleSetupStepPaste") });
+		fragment.createEl("a", { text: t("googleConsole"), href: GOOGLE_CREDENTIALS_URL });
 	});
 }
 
