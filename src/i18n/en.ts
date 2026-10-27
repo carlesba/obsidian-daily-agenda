@@ -62,13 +62,15 @@ export const en = {
 	appSpecificPasswordStepOpen: "Under Sign-In and Security, choose App-Specific Passwords.",
 	appSpecificPasswordStepGenerate: "Choose Generate an app-specific password, name it Obsidian, and paste the result here.",
 	appSpecificPasswordNotes:
-		"Your Apple Account needs two-factor authentication. Changing your Apple Account password revokes the app-specific password. Obsidian keeps it in its secret storage.",
+		"Your Apple Account needs two-factor authentication. Changing your Apple Account password revokes the app-specific password.",
+	keychainExplanation:
+		"The plugin keeps this in Obsidian's keychain, not in its settings file. Choose an existing secret or create one: the ID is any name you pick to recognise the secret later, such as {example}, and the value is what you paste.",
 	appSpecificPasswordHelp: "Apple's instructions",
 	serverUrl: "Server URL",
 	serverUrlDesc: "Leave as https://caldav.icloud.com for iCloud.",
 	calendarUrl: "Calendar URL",
 	calendarUrlDesc:
-		"The calendar's iCal address. For Google Calendar, open Settings, pick the calendar, then Integrate calendar and copy the Secret address in iCal format. Obsidian keeps it in its secret storage.",
+		"The calendar's iCal address. For Google Calendar, open Settings, pick the calendar, then Integrate calendar and copy the Secret address in iCal format.",
 
 	templates: "Templates",
 	templateMatching: "Which template is used",

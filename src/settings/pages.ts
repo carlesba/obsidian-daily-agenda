@@ -110,7 +110,7 @@ export function accountPage(account: Account, context: PageContext): SettingDefi
 			},
 			{
 				name: t("calendarUrl"),
-				desc: t("calendarUrlDesc"),
+				desc: withKeychainExplanation(t("calendarUrlDesc"), "google-calendar-url"),
 				visible: () => account.kind === "ics",
 				render: secretInput(context, key("urlSecret"), () => account.urlSecret),
 			},
@@ -207,5 +207,17 @@ function appSpecificPasswordHelp(): DocumentFragment {
 		steps.createEl("li", { text: t("appSpecificPasswordStepGenerate") });
 		fragment.appendText(`${t("appSpecificPasswordNotes")} `);
 		fragment.createEl("a", { text: t("appSpecificPasswordHelp"), href: APP_SPECIFIC_PASSWORD_HELP_URL });
+		appendKeychainExplanation(fragment, "icloud-password");
 	});
+}
+
+function withKeychainExplanation(description: string, example: string): DocumentFragment {
+	return createFragment((fragment) => {
+		fragment.appendText(description);
+		appendKeychainExplanation(fragment, example);
+	});
+}
+
+function appendKeychainExplanation(fragment: DocumentFragment, example: string): void {
+	fragment.createEl("p", { text: t("keychainExplanation", { example }) });
 }
