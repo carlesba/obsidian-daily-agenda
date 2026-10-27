@@ -24,6 +24,8 @@ export function failureReason(error: unknown): string {
 				return t("reasonSignedOut");
 			case "notICalFeed":
 				return t("reasonNotICalFeed");
+			case "googlePublicAddress":
+				return t("reasonGooglePublicAddress");
 		}
 	}
 	return t("reasonUnknown", { message: error instanceof Error ? error.message : String(error) });

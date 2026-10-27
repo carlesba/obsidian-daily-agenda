@@ -15,6 +15,8 @@ export const en = {
 	reasonNoCalendarHome: "the server did not name where the calendars are.",
 	reasonNotICalFeed:
 		"the address is not an iCal feed. For Google Calendar, use the Secret address in iCal format from the calendar's Settings, Integrate calendar, not its share link.",
+	reasonGooglePublicAddress:
+		"this is the calendar's public address, which only works for public calendars. Use the Secret address in iCal format from the same Integrate calendar section instead.",
 	reasonSignedOut: "signed out of Google. Sign in again in the account's settings.",
 	reasonUnknown: "{message}",
 	signInRejected: "This Google sign-in is unknown, already used or older than 10 minutes. Start it again from the account's settings.",

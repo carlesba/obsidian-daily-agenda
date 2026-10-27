@@ -99,3 +99,13 @@ test("an address that answers with a web page instead of a calendar is rejected"
 		(error: { reason?: string }) => error.reason === "notICalFeed",
 	);
 });
+
+test("a Google public iCal address is rejected with a hint to use the secret one", async () => {
+	const { fetchIcsEvents } = await import("../src/calendar/ics.ts");
+	const http = async () => ({ status: 404, headers: {}, text: "" });
+	const range = { start: new Date(2026, 0, 1), end: new Date(2026, 0, 2) };
+	await assert.rejects(
+		fetchIcsEvents(http, "https://calendar.google.com/calendar/ical/someone%40example.com/public/basic.ics", range, { accountId: "a", accountName: "A" }),
+		(error: { reason?: string }) => error.reason === "googlePublicAddress",
+	);
+});
