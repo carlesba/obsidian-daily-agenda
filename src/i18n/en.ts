@@ -56,6 +56,8 @@ export const en = {
 	appleId: "Apple ID",
 	appleIdDesc: "The email address you sign in to iCloud with.",
 	appSpecificPassword: "App-specific password",
+	secretSaved: "Saved. Paste a new one to replace it.",
+	secretPaste: "Paste it here",
 	appSpecificPasswordDesc:
 		"iCloud does not accept your Apple Account password here. Create a password just for this plugin:",
 	appSpecificPasswordStepSignIn: "Sign in at account.apple.com.",
