@@ -3,7 +3,7 @@ import type { Http } from "../src/calendar/http.ts";
 
 const [username, serverUrl = "https://caldav.icloud.com"] = process.argv.slice(2);
 if (!username) {
-	console.error("Usage: node scripts/check-caldav.ts <apple-id-email> [server-url]");
+	console.error("Usage: npm run check-caldav -- <apple-id-email> [server-url]");
 	process.exit(2);
 }
 
@@ -37,7 +37,7 @@ try {
 		{ accountId: "check", accountName: "check", calendarName: "check" },
 	);
 	console.log(`OK: ${events.length} events today`);
-	for (const event of events) console.log(`  ${event.start.toLocaleTimeString()} [${event.calendarName}] ${event.title}`);
+	for (const event of events) console.log(`  ${event.start.toLocaleTimeString()} [${event.calendar}] ${event.title}`);
 } catch (error) {
 	console.error("FAILED:", error);
 	process.exit(1);

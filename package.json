@@ -10,7 +10,7 @@
 		"typecheck": "tsc -noEmit -skipLibCheck",
 		"lint": "eslint src",
 		"test": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/*.test.ts",
-		"check-caldav": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-caldav.ts"
+		"check-caldav": "node --disable-warning=MODULE_TYPELESS_PACKAGE_JSON scripts/check-caldav.mts"
 	},
 	"keywords": [
 		"obsidian",
