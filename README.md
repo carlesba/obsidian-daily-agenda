@@ -20,12 +20,28 @@ Add an account with the **+** next to **Accounts** and give it a name such as "W
 
 Every iCloud calendar that holds events is read.
 
-### Google Calendar, or any iCal address
+### Google
 
-1. In Google Calendar, open **Settings**, pick the calendar under **Settings for my calendars**, open **Integrate calendar** and copy the **Secret address in iCal format**.
+Google lets the plugin read your calendars only through an OAuth client you create once in your own Google Cloud project.
+
+1. In the [Google Cloud console](https://console.cloud.google.com/), create a project and enable the **Google Calendar API** under **APIs & Services → Library**.
+2. Configure the **OAuth consent screen** with the user type **External** and add yourself as a user. While the app's publishing status is **Testing**, Google lets refresh tokens expire after 7 days, so you would have to sign in again every week. Choose **Publish app** to move it to **In production**. For personal use the app stays unverified, and Google shows an "unverified app" warning once when you sign in.
+3. Under [Credentials](https://console.cloud.google.com/apis/credentials), create an **OAuth client ID** of type **Web application** and add exactly this **Authorized redirect URI**: `https://carlesba.github.io/obsidian-daily-agenda/oauth/`
+4. Set the account's kind to **Google**, paste the client ID, and pick or create a secret holding the client secret.
+5. Choose **Sign in with Google**, allow read-only access to your calendars, and let the browser send you back to Obsidian.
+
+Once signed in, the account page shows the Google account's address and one toggle per calendar. Your primary calendar and the calendars shown in Google Calendar start switched on. Use **Refresh calendars** after adding a calendar in Google, and **Sign out** to forget the sign-in.
+
+### Any iCal address
+
+1. Copy the calendar's iCal address. In Google Calendar, for example, open **Settings**, pick the calendar under **Settings for my calendars**, open **Integrate calendar** and copy the **Secret address in iCal format**.
 2. Set the account's kind to **iCal URL** and pick or create a secret holding that address.
 
 The secret address lets anyone read the calendar, so it is kept in Obsidian's secret storage rather than in the plugin's settings. Add one account per calendar.
+
+## Security
+
+Signing in to Google uses the authorization code flow with PKCE (S256). The code verifier stays in the plugin's memory and is never written to disk. Each sign-in carries a random `state` nonce that is accepted once and only within 10 minutes. The redirect page, served from this repository's `docs/oauth/`, loads nothing external, forwards only `code`, `state` and `error` to the fixed address `obsidian://daily-agenda`, and redirects nowhere else. The client secret and the refresh token are kept in Obsidian's keychain, not in `data.json`, and access tokens live only in memory. The plugin asks only for the read-only calendar scope. The `state` also carries the vault's name so that the redirect reopens the right vault, which means Google sees that name.
 
 ## Templates
 
@@ -59,4 +75,4 @@ Lines are ordered by start time, and each day's all-day events come first.
 
 ## Limits
 
-Calendars stored only on the device, such as a local calendar on a phone, are not supported yet. Only iCloud accounts and iCal addresses can be read.
+Calendars stored only on the device, such as a local calendar on a phone, are not supported yet. Only iCloud and Google accounts and iCal addresses can be read.
