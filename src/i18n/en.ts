@@ -2,6 +2,7 @@ export const en = {
 	appendAgenda: "Append agenda",
 	noAccountsEnabled: "Add or enable a calendar account in the Daily Agenda settings.",
 	noEvents: "No events in this period.",
+	agendaAlreadyInNote: "Every event is already in the note.",
 	noTemplateMatches: "No template matches the events in this period.",
 	appendedOne: "Added 1 event.",
 	appendedOther: "Added {count} events.",

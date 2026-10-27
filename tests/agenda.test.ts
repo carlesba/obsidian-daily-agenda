@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
-import { agendaLines, appendLines } from "../src/agenda/agenda.ts";
+import { agendaLines, appendLines, linesMissingFrom } from "../src/agenda/agenda.ts";
 import { ANY } from "../src/settings.ts";
 import type { AgendaTemplate } from "../src/settings.ts";
 import { event } from "./events.ts";
@@ -39,4 +39,18 @@ test("lines are appended after a newline that separates them from the note", () 
 	assert.equal(appendLines("# Today", ["- a", "- b"]), "# Today\n- a\n- b\n");
 	assert.equal(appendLines("", ["- a"]), "- a\n");
 	assert.equal(appendLines("# Today", []), "# Today");
+});
+
+test("lines already in the note are not added again, whatever their checkbox state", () => {
+	const note = "# Today\n- [x] 09:00 Standup\n  - [ ] 11:00 Review  \n";
+	const lines = ["- [ ] 09:00 Standup", "- [ ] 11:00 Review", "- [ ] 14:00 Planning"];
+	assert.deepEqual(linesMissingFrom(note, lines), ["- [ ] 14:00 Planning"]);
+});
+
+test("identical events fetched twice produce one line", () => {
+	assert.deepEqual(linesMissingFrom("", ["- a", "- a", "- b"]), ["- a", "- b"]);
+});
+
+test("a changed event title is added as a new line", () => {
+	assert.deepEqual(linesMissingFrom("- [ ] 09:00 Standup\n", ["- [ ] 09:00 Daily standup"]), ["- [ ] 09:00 Daily standup"]);
 });

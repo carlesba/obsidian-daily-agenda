@@ -36,6 +36,20 @@ export function appendLines(content: string, lines: readonly string[]): string {
 	return content.endsWith("\n") ? `${content}${block}` : `${content}\n${block}`;
 }
 
+export function linesMissingFrom(content: string, lines: readonly string[]): string[] {
+	const present = new Set(content.split("\n").map(comparableLine));
+	return lines.filter((line) => {
+		const key = comparableLine(line);
+		if (present.has(key)) return false;
+		present.add(key);
+		return true;
+	});
+}
+
+function comparableLine(line: string): string {
+	return line.trim().replace(/^([-*+]|\d+[.)])\s+\[.\]/, "$1 [ ]");
+}
+
 function localDay(date: Date): number {
 	return new Date(date.getFullYear(), date.getMonth(), date.getDate()).valueOf();
 }

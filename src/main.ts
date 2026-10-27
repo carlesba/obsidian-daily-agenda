@@ -1,6 +1,6 @@
 import { MarkdownView, Notice, Plugin, getLanguage, moment } from "obsidian";
 import type { TFile } from "obsidian";
-import { agendaLines, appendLines } from "./agenda/agenda";
+import { agendaLines, appendLines, linesMissingFrom } from "./agenda/agenda";
 import { accountName, fetchAgenda } from "./calendar/accounts";
 import type { AccountFailure } from "./calendar/accounts";
 import { CalendarError } from "./calendar/http";
@@ -75,8 +75,13 @@ export default class DailyAgendaPlugin extends Plugin {
 			new Notice(t("noTemplateMatches"));
 			return;
 		}
-		await this.app.vault.process(file, (content) => appendLines(content, lines));
-		new Notice(tCount("appendedOne", "appendedOther", lines.length));
+		let added = 0;
+		await this.app.vault.process(file, (content) => {
+			const missing = linesMissingFrom(content, lines);
+			added = missing.length;
+			return appendLines(content, missing);
+		});
+		new Notice(added === 0 ? t("agendaAlreadyInNote") : tCount("appendedOne", "appendedOther", added));
 	}
 }
 
