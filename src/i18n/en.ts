@@ -1,5 +1,6 @@
 export const en = {
-	appendAgenda: "Append agenda",
+	syncAgenda: "Sync agenda with current note",
+	noDateFound: "No date found: open a periodic note to sync its agenda.",
 	noAccountsEnabled: "Add or enable a calendar account in the Daily Agenda settings.",
 	noEvents: "No events in this period.",
 	agendaAlreadyInNote: "Every event is already in the note.",

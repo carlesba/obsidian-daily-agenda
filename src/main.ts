@@ -30,14 +30,16 @@ export default class DailyAgendaPlugin extends Plugin {
 		this.addSettingTab(new DailyAgendaSettingTab(this.app, this));
 
 		this.addCommand({
-			id: "append-agenda",
-			name: t("appendAgenda"),
-			icon: "calendar-plus",
-			checkCallback: (checking) => {
+			id: "sync-agenda",
+			name: t("syncAgenda"),
+			icon: "calendar-sync",
+			callback: () => {
 				const target = this.activePeriodicNote();
-				if (!target) return false;
-				if (!checking) void this.appendAgenda(target.file, target.note);
-				return true;
+				if (!target) {
+					new Notice(t("noDateFound"));
+					return;
+				}
+				void this.syncAgenda(target.file, target.note);
 			},
 		});
 	}
@@ -54,7 +56,7 @@ export default class DailyAgendaPlugin extends Plugin {
 		return note ? { file, note } : undefined;
 	}
 
-	private async appendAgenda(file: TFile, note: PeriodicNote): Promise<void> {
+	private async syncAgenda(file: TFile, note: PeriodicNote): Promise<void> {
 		if (!this.settings.accounts.some((account) => account.enabled)) {
 			new Notice(t("noAccountsEnabled"));
 			return;

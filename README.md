@@ -2,7 +2,7 @@
 
 Daily Agenda appends the calendar events of a periodic note's day, week, month, quarter or year to the end of that note, one line per event. It works on desktop and on mobile.
 
-Open a periodic note and run **Append agenda** from the command palette. The command only shows up when the open note is a periodic note. It reads every enabled account, writes a line for each event through the matching template and adds the lines at the end of the note. Running it again adds only the events whose line is not in the note yet. A line counts as present when the note has the same text, whether its checkbox is ticked or not, so an event renamed or moved in the calendar is added as a new line.
+Open a periodic note and run **Sync agenda with current note** from the command palette. In any other note the command says no date was found. It reads every enabled account, writes a line for each event through the matching template and adds the lines at the end of the note. Running it again adds only the events whose line is not in the note yet. A line counts as present when the note has the same text, whether its checkbox is ticked or not, so an event renamed or moved in the calendar is added as a new line.
 
 ## Periodic notes
 
