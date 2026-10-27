@@ -1,0 +1,33 @@
+{
+	"name": "obsidian-daily-agenda",
+	"version": "0.1.0",
+	"description": "Append the calendar events of a periodic note's day, week, month, quarter or year to the note.",
+	"main": "main.js",
+	"private": true,
+	"scripts": {
+		"dev": "node esbuild.config.mjs",
+		"build": "tsc -noEmit -skipLibCheck && node esbuild.config.mjs production",
+		"typecheck": "tsc -noEmit -skipLibCheck",
+		"lint": "eslint src",
+		"test": "node --test --disable-warning=MODULE_TYPELESS_PACKAGE_JSON tests/*.test.ts"
+	},
+	"keywords": [
+		"obsidian",
+		"obsidian-plugin",
+		"calendar"
+	],
+	"license": "MIT",
+	"dependencies": {
+		"ical.js": "^2.1.0"
+	},
+	"devDependencies": {
+		"@types/node": "^20.11.30",
+		"esbuild": "^0.20.2",
+		"eslint": "^9.39.5",
+		"eslint-plugin-obsidianmd": "^0.4.2",
+		"moment": "^2.29.4",
+		"obsidian": "latest",
+		"tslib": "^2.6.2",
+		"typescript": "^5.4.5"
+	}
+}

@@ -1,0 +1,10 @@
+{
+	"id": "daily-agenda",
+	"name": "Daily Agenda",
+	"version": "0.1.0",
+	"minAppVersion": "1.13.0",
+	"description": "Append the calendar events of a periodic note's day, week, month, quarter or year to the note.",
+	"author": "Carles Ballester",
+	"authorUrl": "https://github.com/carlesba",
+	"isDesktopOnly": false
+}
