@@ -13,7 +13,7 @@ export interface HttpResponse {
 
 export type Http = (request: HttpRequest) => Promise<HttpResponse>;
 
-export type CalendarErrorReason = "missingCredentials" | "authenticationFailed" | "requestFailed" | "noPrincipal" | "noCalendarHome" | "signedOut";
+export type CalendarErrorReason = "missingCredentials" | "authenticationFailed" | "requestFailed" | "noPrincipal" | "noCalendarHome" | "signedOut" | "notICalFeed";
 
 export class CalendarError extends Error {
 	readonly reason: CalendarErrorReason;

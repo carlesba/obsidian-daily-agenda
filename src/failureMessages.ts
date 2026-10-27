@@ -22,6 +22,8 @@ export function failureReason(error: unknown): string {
 				return t("reasonNoCalendarHome");
 			case "signedOut":
 				return t("reasonSignedOut");
+			case "notICalFeed":
+				return t("reasonNotICalFeed");
 		}
 	}
 	return t("reasonUnknown", { message: error instanceof Error ? error.message : String(error) });

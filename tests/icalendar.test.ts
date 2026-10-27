@@ -74,3 +74,28 @@ test("a period between occurrences gets none of them", () => {
 	const quietDay = { start: new Date(2025, 2, 4), end: new Date(2025, 2, 5) };
 	assert.deepEqual(parseICalendar(fixture, quietDay, origin), []);
 });
+
+test("a Google Calendar share link is rejected before fetching, with a hint", async () => {
+	const { fetchIcsEvents } = await import("../src/calendar/ics.ts");
+	let fetched = false;
+	const http = async () => {
+		fetched = true;
+		return { status: 200, headers: {}, text: "" };
+	};
+	const range = { start: new Date(2026, 0, 1), end: new Date(2026, 0, 2) };
+	await assert.rejects(
+		fetchIcsEvents(http, "https://calendar.google.com/calendar/u/0?cid=abc", range, { accountId: "a", accountName: "A" }),
+		(error: { reason?: string }) => error.reason === "notICalFeed",
+	);
+	assert.equal(fetched, false);
+});
+
+test("an address that answers with a web page instead of a calendar is rejected", async () => {
+	const { fetchIcsEvents } = await import("../src/calendar/ics.ts");
+	const http = async () => ({ status: 200, headers: {}, text: "<!doctype html><title>Sign in</title>" });
+	const range = { start: new Date(2026, 0, 1), end: new Date(2026, 0, 2) };
+	await assert.rejects(
+		fetchIcsEvents(http, "https://example.com/calendar", range, { accountId: "a", accountName: "A" }),
+		(error: { reason?: string }) => error.reason === "notICalFeed",
+	);
+});
