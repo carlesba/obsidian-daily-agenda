@@ -2,8 +2,8 @@ import { MarkdownView, Notice, Plugin, getLanguage, moment } from "obsidian";
 import type { TFile } from "obsidian";
 import { agendaLines, appendLines, linesMissingFrom } from "./agenda/agenda";
 import { accountName, fetchAgenda } from "./calendar/accounts";
-import type { AccountFailure } from "./calendar/accounts";
-import { CalendarError } from "./calendar/http";
+import type { AccessTokens } from "./calendar/google";
+import { failureMessage } from "./failureMessages";
 import { DEFAULT_LANGUAGE, setLanguage, t, tCount } from "./i18n";
 import { obsidianHttp } from "./obsidianHttp";
 import { resolveDateNotes } from "./periodic/dateNotes";
@@ -19,6 +19,7 @@ const momentFactory = moment as unknown as MomentFactory;
 
 export default class DailyAgendaPlugin extends Plugin {
 	settings: AgendaSettings = defaultSettings();
+	private readonly accessTokens: AccessTokens = new Map();
 
 	async onload(): Promise<void> {
 		try {
@@ -66,6 +67,7 @@ export default class DailyAgendaPlugin extends Plugin {
 			this.settings.accounts,
 			(id) => this.app.secretStorage.getSecret(id),
 			periodRange(note),
+			this.accessTokens,
 		);
 		for (const failure of failures) {
 			console.error(`Daily Agenda: could not read "${accountName(failure.account)}"`, failure.error);
@@ -87,36 +89,5 @@ export default class DailyAgendaPlugin extends Plugin {
 			return appendLines(content, missing);
 		});
 		new Notice(added === 0 ? t("agendaAlreadyInNote") : tCount("appendedOne", "appendedOther", added));
-	}
-}
-
-function failureMessage({ account, error }: AccountFailure): string {
-	return t("accountFailed", { account: accountName(account), reason: failureReason(error) });
-}
-
-function failureReason(error: unknown): string {
-	if (error instanceof CalendarError) {
-		switch (error.reason) {
-			case "missingCredentials":
-				return t("reasonMissingCredentials");
-			case "authenticationFailed":
-				return t("reasonAuthenticationFailed", { status: error.status ?? "", host: hostOf(error.url) });
-			case "requestFailed":
-				return t("reasonRequestFailed", { status: error.status ?? "", host: hostOf(error.url) });
-			case "noPrincipal":
-				return t("reasonNoPrincipal");
-			case "noCalendarHome":
-				return t("reasonNoCalendarHome");
-		}
-	}
-	return t("reasonUnknown", { message: error instanceof Error ? error.message : String(error) });
-}
-
-function hostOf(url: string | undefined): string {
-	if (url === undefined) return "";
-	try {
-		return new URL(url).host;
-	} catch {
-		return url;
 	}
 }

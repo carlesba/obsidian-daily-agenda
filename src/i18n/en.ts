@@ -13,6 +13,7 @@ export const en = {
 	reasonRequestFailed: "{host} answered with status {status}.",
 	reasonNoPrincipal: "the server did not name a calendar account.",
 	reasonNoCalendarHome: "the server did not name where the calendars are.",
+	reasonSignedOut: "signed out of Google. Sign in again in the account's settings.",
 	reasonUnknown: "{message}",
 	needsNewerObsidian: "Editing these settings needs Obsidian 1.13 or later.",
 
@@ -52,6 +53,7 @@ export const en = {
 	accountKind: "Kind",
 	kindIcloud: "iCloud",
 	kindIcs: "iCal URL",
+	kindGoogle: "Google",
 	needsSignIn: "Needs sign-in details.",
 	appleId: "Apple ID",
 	appleIdDesc: "The email address you sign in to iCloud with.",

@@ -32,3 +32,31 @@ test("a template line stays on one line", () => {
 	assert.ok(writeControl(settings, templateKey(template.id, "body"), "- {{title}}\n{{location}}"));
 	assert.equal(template.body, "- {{title}} {{location}}");
 });
+
+test("a Google account keeps its client, token ID, email and calendars", () => {
+	const merged = mergeSettings({
+		accounts: [
+			{
+				id: "g",
+				kind: "google",
+				clientId: "client",
+				clientSecret: "google-client-secret",
+				tokenSecret: "daily-agenda-g-google-token",
+				email: "someone@example.com",
+				calendars: [{ id: "someone@example.com", name: "Personal" }, { id: "team", name: "Team", enabled: false }, { name: "no id" }],
+			},
+		],
+	});
+	const [account] = merged.accounts;
+	assert.deepEqual([account.kind, account.clientId, account.clientSecret, account.tokenSecret, account.email], [
+		"google",
+		"client",
+		"google-client-secret",
+		"daily-agenda-g-google-token",
+		"someone@example.com",
+	]);
+	assert.deepEqual(account.calendars, [
+		{ id: "someone@example.com", name: "Personal", enabled: true },
+		{ id: "team", name: "Team", enabled: false },
+	]);
+});

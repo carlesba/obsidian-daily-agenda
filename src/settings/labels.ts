@@ -5,7 +5,7 @@ import type { Account, AccountKind, AgendaTemplate, AnyPeriod, EventKind } from 
 import { periodName } from "./dateNotesForm.ts";
 
 export function accountKindOptions(): Record<AccountKind, string> {
-	return { icloud: t("kindIcloud"), ics: t("kindIcs") };
+	return { icloud: t("kindIcloud"), ics: t("kindIcs"), google: t("kindGoogle") };
 }
 
 export function eventKindOptions(): Record<EventKind, string> {
@@ -31,7 +31,12 @@ export function accountLabel(account: Account): string {
 
 export function hasSignInDetails(account: Account): boolean {
 	if (account.kind === "ics") return account.urlSecret.trim() !== "";
+	if (account.kind === "google") return isSignedIn(account);
 	return account.username.trim() !== "" && account.passwordSecret.trim() !== "";
+}
+
+export function isSignedIn(account: Account): boolean {
+	return account.clientId.trim() !== "" && account.clientSecret.trim() !== "" && account.tokenSecret.trim() !== "";
 }
 
 export function accountSummary(account: Account): string {

@@ -1,9 +1,9 @@
 import { PERIODS, defaultDateNoteSettings } from "./periodic/dateNotes.ts";
 import type { DateNoteSettings, Period, PeriodFormat } from "./periodic/dateNotes.ts";
 
-export type AccountKind = "icloud" | "ics";
+export type AccountKind = "icloud" | "ics" | "google";
 
-export const ACCOUNT_KINDS: readonly AccountKind[] = ["icloud", "ics"];
+export const ACCOUNT_KINDS: readonly AccountKind[] = ["icloud", "ics", "google"];
 
 export const ICLOUD_SERVER_URL = "https://caldav.icloud.com";
 
@@ -16,6 +16,17 @@ export interface Account {
 	passwordSecret: string;
 	serverUrl: string;
 	urlSecret: string;
+	clientId: string;
+	clientSecret: string;
+	tokenSecret: string;
+	email: string;
+	calendars: AccountCalendar[];
+}
+
+export interface AccountCalendar {
+	id: string;
+	name: string;
+	enabled: boolean;
 }
 
 export type EventKind = "timed" | "allDay";
@@ -83,6 +94,11 @@ export function newAccount(accounts: readonly Account[], kind: AccountKind = "ic
 		passwordSecret: "",
 		serverUrl: ICLOUD_SERVER_URL,
 		urlSecret: "",
+		clientId: "",
+		clientSecret: "",
+		tokenSecret: "",
+		email: "",
+		calendars: [],
 	};
 }
 
@@ -114,8 +130,18 @@ function readAccount(stored: unknown): Account[] {
 			passwordSecret: stringOr(stored.passwordSecret, ""),
 			serverUrl: stringOr(stored.serverUrl, ICLOUD_SERVER_URL),
 			urlSecret: stringOr(stored.urlSecret, ""),
+			clientId: stringOr(stored.clientId, ""),
+			clientSecret: stringOr(stored.clientSecret, ""),
+			tokenSecret: stringOr(stored.tokenSecret, ""),
+			email: stringOr(stored.email, ""),
+			calendars: Array.isArray(stored.calendars) ? uniqueIds(stored.calendars.flatMap(readCalendar)) : [],
 		},
 	];
+}
+
+function readCalendar(stored: unknown): AccountCalendar[] {
+	if (!isRecord(stored) || typeof stored.id !== "string" || stored.id === "") return [];
+	return [{ id: stored.id, name: stringOr(stored.name, stored.id), enabled: stored.enabled !== false }];
 }
 
 function readTemplate(stored: unknown): AgendaTemplate[] {
