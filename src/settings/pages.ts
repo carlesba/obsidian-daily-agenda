@@ -1,3 +1,4 @@
+import { SecretComponent } from "obsidian";
 import type { App, Setting, SettingDefinitionItem, SettingDefinitionPage, SettingDefinitionRender } from "obsidian";
 import { t } from "../i18n";
 import type { Account, AgendaSettings, AgendaTemplate } from "../settings";
@@ -99,7 +100,7 @@ export function accountPage(account: Account, context: PageContext): SettingDefi
 				name: t("appSpecificPassword"),
 				desc: appSpecificPasswordHelp(),
 				visible: isIcloud,
-				render: secretInput(context, key("passwordSecret"), secretId(account, "password"), () => account.passwordSecret),
+				render: secretInput(context, key("passwordSecret"), () => account.passwordSecret),
 			},
 			{
 				name: t("serverUrl"),
@@ -111,7 +112,7 @@ export function accountPage(account: Account, context: PageContext): SettingDefi
 				name: t("calendarUrl"),
 				desc: t("calendarUrlDesc"),
 				visible: () => account.kind === "ics",
-				render: secretInput(context, key("urlSecret"), secretId(account, "url"), () => account.urlSecret),
+				render: secretInput(context, key("urlSecret"), () => account.urlSecret),
 			},
 		],
 	};
@@ -162,31 +163,12 @@ export function templatePage(template: AgendaTemplate, context: PageContext): Se
 	return page;
 }
 
-function secretInput(
-	context: PageContext,
-	key: string,
-	ownId: string,
-	storedId: () => string,
-): (setting: Setting) => void {
+function secretInput(context: PageContext, key: string, value: () => string): (setting: Setting) => void {
 	return (setting) => {
-		setting.addText((text) => {
-			text.inputEl.type = "password";
-			text.inputEl.autocomplete = "off";
-			const saved = storedId() !== "" && context.app.secretStorage.getSecret(storedId()) !== null;
-			text.setPlaceholder(saved ? t("secretSaved") : t("secretPaste"));
-			text.onChange((value) => {
-				const secret = value.trim();
-				if (secret === "") return;
-				context.app.secretStorage.setSecret(ownId, secret);
-				if (storedId() !== ownId) context.write(key, ownId);
-			});
-		});
+		setting.addComponent((el) =>
+			new SecretComponent(context.app, el).setValue(value()).onChange((secretId) => context.write(key, secretId ?? "")),
+		);
 	};
-}
-
-function secretId(account: Account, field: "password" | "url"): string {
-	const accountPart = account.id.toLowerCase().replace(/[^a-z0-9-]+/g, "-");
-	return `daily-agenda-${accountPart}-${field}`;
 }
 
 function editableRow(row: EditableRow, context: PageContext): SettingDefinitionRender & { id: string } {
