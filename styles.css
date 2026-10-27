@@ -1,0 +1,7 @@
+.daily-agenda-template-line .setting-item-control {
+	flex: 1 1 60%;
+}
+
+.daily-agenda-template-line .setting-item-control input {
+	width: 100%;
+}
