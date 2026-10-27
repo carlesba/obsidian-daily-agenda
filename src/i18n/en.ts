@@ -56,7 +56,13 @@ export const en = {
 	appleIdDesc: "The email address you sign in to iCloud with.",
 	appSpecificPassword: "App-specific password",
 	appSpecificPasswordDesc:
-		"Create one at account.apple.com under Sign-In and Security, App-Specific Passwords. Obsidian keeps it in its secret storage.",
+		"iCloud does not accept your Apple Account password here. Create a password just for this plugin:",
+	appSpecificPasswordStepSignIn: "Sign in at account.apple.com.",
+	appSpecificPasswordStepOpen: "Under Sign-In and Security, choose App-Specific Passwords.",
+	appSpecificPasswordStepGenerate: "Choose Generate an app-specific password, name it Obsidian, and paste the result here.",
+	appSpecificPasswordNotes:
+		"Your Apple Account needs two-factor authentication. Changing your Apple Account password revokes the app-specific password. Obsidian keeps it in its secret storage.",
+	appSpecificPasswordHelp: "Apple's instructions",
 	serverUrl: "Server URL",
 	serverUrlDesc: "Leave as https://caldav.icloud.com for iCloud.",
 	calendarUrl: "Calendar URL",

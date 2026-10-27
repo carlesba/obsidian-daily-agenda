@@ -98,7 +98,7 @@ export function accountPage(account: Account, context: PageContext): SettingDefi
 			},
 			{
 				name: t("appSpecificPassword"),
-				desc: t("appSpecificPasswordDesc"),
+				desc: appSpecificPasswordHelp(),
 				visible: isIcloud,
 				render: secretInput(context, key("passwordSecret"), () => account.passwordSecret),
 			},
@@ -191,4 +191,21 @@ function editableRow(row: EditableRow, context: PageContext): SettingDefinitionR
 			);
 		},
 	};
+}
+
+const APPLE_ACCOUNT_URL = "https://account.apple.com";
+
+const APP_SPECIFIC_PASSWORD_HELP_URL = "https://support.apple.com/102654";
+
+function appSpecificPasswordHelp(): DocumentFragment {
+	return createFragment((fragment) => {
+		fragment.appendText(t("appSpecificPasswordDesc"));
+		const steps = fragment.createEl("ol");
+		const signIn = steps.createEl("li");
+		signIn.createEl("a", { text: t("appSpecificPasswordStepSignIn"), href: APPLE_ACCOUNT_URL });
+		steps.createEl("li", { text: t("appSpecificPasswordStepOpen") });
+		steps.createEl("li", { text: t("appSpecificPasswordStepGenerate") });
+		fragment.appendText(`${t("appSpecificPasswordNotes")} `);
+		fragment.createEl("a", { text: t("appSpecificPasswordHelp"), href: APP_SPECIFIC_PASSWORD_HELP_URL });
+	});
 }
